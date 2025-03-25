@@ -6,9 +6,9 @@ main {
 }
 
 button {
+
   border-radius: 8px;
   padding: 8px 16px;
-  width: 91px;
   height: 40px;
   border-style: none;
   background: #4e75ff;
@@ -113,4 +113,31 @@ color: #2e2f42;
   flex-direction: column;
   flex-wrap: wrap;
   gap: 2px;
+}
+
+.more-btn {
+  display: none;
+}
+
+.more-btn.active {
+  display: inline-block;
+  cursor: pointer;
+  pointer-events: all;
+  border-radius: 8px;
+  padding: 8px 16px;
+  margin-bottom: 50px;
+  height: 40px;
+  border-style: none;
+  background: #4e75ff;
+
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.more-btn:hover {
+  background: #6c8cff;
+  transition: all cubic-bezier(0.6, 0.04, 0.98, 0.335);
 }
