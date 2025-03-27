@@ -8,10 +8,14 @@ const form = document.querySelector('.form');
 const loader = document.querySelector('.loader');
 const input = document.querySelector('.input');
 const moreBtn = document.querySelector('.more-btn');
-const galleryItem = document.querySelector('.gallery-item');
+const gallery = document.querySelector('.gallery');
 
+let page = 1;
+const perPage = 15;
+let totalHits = 0;
 
-form.addEventListener('submit', event => {
+// form submit
+form.addEventListener('submit', async event => {
   event.preventDefault();
   if (input.value.trim() === '') {
     iziToast.warning({
@@ -26,77 +30,88 @@ form.addEventListener('submit', event => {
   classAdd();
   moreClassRemove();
 
-  fetchImages(input.value)
-    .then(images => {
-      classRemove();
-      if (images.length === 0) {
-        iziToast.error({
-          message:
-            'Sorry, there are no images matching your search query. Please try again!',
-          position: 'topRight',
-        });
-        moreClassRemove();
-        form.reset();
-        return;
-      }
-      renderHits(images);
-      moreClassAdd();
-    })
-    .catch(error => {
-      console.log(error);
-      classRemove();
+  page = 1; 
+
+  try {
+    const { images, totalHits: fetchedTotalHits } = await fetchImages(input.value, page);
+    totalHits = fetchedTotalHits;
+    classRemove();
+
+    if (images.length === 0) {
       iziToast.error({
-        title:
+        message:
           'Sorry, there are no images matching your search query. Please try again!',
         position: 'topRight',
-        timeout: 5000,
       });
-    });
-  // loader class
-  function classAdd() {
-    loader.classList.add('active');
-  }
-  function classRemove() {
-    loader.classList.remove('active');
-  }
-  // more btn class
-  function moreClassAdd() {
-    moreBtn.classList.add('active');
-  }
-  function moreClassRemove() {
-    moreBtn.classList.remove('active');
-  }
-});
+      moreClassRemove();
+      form.reset();
+      return;
+    }
 
-export let page = 1;
-export const per_page = 15;
-
-moreBtn.addEventListener('click', async () => {
-  const totalPages = Math.ceil(totalHits / per_page);
-  if (page > totalPages) {
-    moreClassRemove();
+    renderHits(images);
+    moreClassAdd();
+  } catch (error) {
+    console.log(error);
     classRemove();
     iziToast.error({
-      title: "We're sorry, but you've reached the end of search results.",
+      title:
+        'Sorry, there are no images matching your search query. Please try again!',
       position: 'topRight',
       timeout: 5000,
     });
   }
+});
 
-  classRemove();
-  moreClassRemove();
+// loader class
+function classAdd() {
+  loader.classList.add('active');
+}
+function classRemove() {
+  loader.classList.remove('active');
+}
+
+// more btn class
+function moreClassAdd() {
+  moreBtn.classList.add('active');
+}
+function moreClassRemove() {
+  moreBtn.classList.remove('active');
+}
+
+// more BTN
+moreBtn.addEventListener('click', async event => {
+  event.preventDefault();
+  page += 1;
+  classAdd();
 
   try {
-    const images = await fetchImages(input.value);
-    renderHits(images);
-    page += 1;
+    const { images, totalHits: fetchedTotalHits } = await fetchImages(input.value, page);
+    totalHits = fetchedTotalHits; 
+    const totalPages = Math.ceil(totalHits / perPage);
+    classRemove();
 
-    if (page > 1) {
-      moreClassAdd();
+    renderHits(images);
+
+    if (page >= totalPages) {
+      moreClassRemove();
+      classRemove();
+      iziToast.error({
+        title: "We're sorry, but you've reached the end of search results.",
+        position: 'topRight',
+        timeout: 5000,
+      });
     }
+    // scroll
+    setTimeout(() => {
+      const galleryItem = document.querySelector('.gallery-item');
+      if (galleryItem) {
+        const elemHeight = galleryItem.getBoundingClientRect().height;
+        window.scrollBy(0, elemHeight * 2);
+      }
+    }, 100);
   } catch (error) {
+    classRemove();
+    moreClassRemove();
     console.log(error);
   }
-  const elemHeighth = galleryItem.getBoundingClientRect();
-  window.scrollBy(0, elemHeighth * 2)
 });

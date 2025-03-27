@@ -3,6 +3,8 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const gallery = document.querySelector('.gallery');
 
+const lightbox = new SimpleLightbox('.gallery a');
+
 export const renderHits = (images) => {
   const markup = images
     .map(
@@ -23,11 +25,9 @@ export const renderHits = (images) => {
     )
     .join('');
 
-  gallery.innerHTML = markup;
+    gallery.insertAdjacentHTML("beforeend", markup);
   lightbox.refresh();
 };
-
-const lightbox = new SimpleLightbox('.gallery a');
 
 export function galleryClean() {
   gallery.innerHTML = '';
